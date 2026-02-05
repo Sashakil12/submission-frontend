@@ -26,7 +26,7 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       clearAuth();
-      window.location.href = '/login';
+      // Don't redirect here - let ProtectedRoute handle it
     }
     return Promise.reject(error);
   }

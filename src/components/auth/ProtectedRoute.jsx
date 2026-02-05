@@ -6,6 +6,8 @@ import { Skeleton } from '../common/Skeleton';
 const ProtectedRoute = ({ allowedRole }) => {
   const { isAuthenticated, user, isLoading } = useAuth();
 
+  console.log('ProtectedRoute check:', { isAuthenticated, userRole: user?.role, allowedRole, isLoading });
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -18,10 +20,12 @@ const ProtectedRoute = ({ allowedRole }) => {
   }
 
   if (!isAuthenticated) {
+    console.log('Not authenticated, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
-  if (allowedRole && user.role !== allowedRole) {
+  if (allowedRole && user?.role !== allowedRole) {
+    console.log(`Role mismatch: user has "${user?.role}", required "${allowedRole}"`);
     return <Navigate to="/" replace />;
   }
 

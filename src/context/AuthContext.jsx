@@ -18,6 +18,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const token = getToken();
       if (!token) {
+        setIsAuthenticated(false);
+        setUserState(null);
         setIsLoading(false);
         return;
       }
@@ -28,6 +30,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Auth check failed:', error);
       clearAuth();
+      setIsAuthenticated(false);
+      setUserState(null);
     } finally {
       setIsLoading(false);
     }
@@ -66,6 +70,8 @@ export const AuthProvider = ({ children }) => {
     logout,
     checkAuth,
   };
+
+  console.log('AuthContext state:', { isAuthenticated, userRole: user?.role, isLoading });
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
