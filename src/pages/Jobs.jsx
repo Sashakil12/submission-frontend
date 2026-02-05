@@ -69,7 +69,7 @@ const Jobs = () => {
     setApplySuccess(false);
 
     try {
-      await createApplication({ jobId: selectedJob._id });
+      await createApplication({ jobId: selectedJob._id, source: 'manual' });
       setApplySuccess(true);
       // Update the applications count
       setJobs(jobs.map(job => 
