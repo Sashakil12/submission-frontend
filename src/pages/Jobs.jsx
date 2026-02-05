@@ -8,8 +8,11 @@ import {
   Briefcase,
   Filter,
   Sparkles,
+  CheckCircle,
 } from 'lucide-react';
 import { getJobs } from '../services/job.service';
+import { createApplication } from '../services/application.service';
+import { useAuth } from '../hooks/useAuth';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
@@ -20,6 +23,10 @@ const Jobs = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedJob, setSelectedJob] = useState(null);
+  const [applying, setApplying] = useState(false);
+  const [applySuccess, setApplySuccess] = useState(false);
+  const [applyError, setApplyError] = useState(null);
+  const { isAuthenticated, user } = useAuth();
 
   useEffect(() => {
     fetchJobs();
@@ -42,6 +49,40 @@ const Jobs = () => {
       day: 'numeric',
       year: 'numeric',
     });
+  };
+
+  const handleApply = async () => {
+    if (!isAuthenticated) {
+      setApplyError('Please login to apply');
+      return;
+    }
+
+    if (user?.role !== 'talent') {
+      setApplyError('Only talents can apply for jobs');
+      return;
+    }
+
+    if (!selectedJob) return;
+
+    setApplying(true);
+    setApplyError(null);
+    setApplySuccess(false);
+
+    try {
+      await createApplication({ jobId: selectedJob._id });
+      setApplySuccess(true);
+      // Update the applications count
+      setJobs(jobs.map(job => 
+        job._id === selectedJob._id 
+          ? { ...job, applicationsCount: (job.applicationsCount || 0) + 1 }
+          : job
+      ));
+    } catch (error) {
+      console.error('Failed to apply:', error);
+      setApplyError(error.response?.data?.error || 'Failed to apply. Please try again.');
+    } finally {
+      setApplying(false);
+    }
   };
 
   return (
@@ -84,17 +125,21 @@ const Jobs = () => {
               </Card>
             ) : (
               jobs.map((job, i) => (
-                <motion.div
-                  key={job._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
+              <motion.div
+                key={job._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <Card
+                  hover
+                  onClick={() => {
+                    setSelectedJob(job);
+                    setApplySuccess(false);
+                    setApplyError(null);
+                  }}
+                  className={selectedJob?._id === job._id ? 'ring-2 ring-primary-500' : ''}
                 >
-                  <Card
-                    hover
-                    onClick={() => setSelectedJob(job)}
-                    className={selectedJob?._id === job._id ? 'ring-2 ring-primary-500' : ''}
-                  >
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
@@ -174,10 +219,26 @@ const Jobs = () => {
                     </p>
                   </div>
 
-                  <Button className="w-full" size="lg">
-                    <Sparkles size={18} className="mr-2" />
-                    Apply Now
-                  </Button>
+                  {applySuccess ? (
+                    <div className="flex items-center justify-center gap-2 text-green-600 bg-green-50 py-3 rounded-lg">
+                      <CheckCircle size={18} />
+                      <span className="font-medium">Applied Successfully!</span>
+                    </div>
+                  ) : (
+                    <Button 
+                      className="w-full" 
+                      size="lg"
+                      onClick={handleApply}
+                      disabled={applying}
+                    >
+                      <Sparkles size={18} className="mr-2" />
+                      {applying ? 'Applying...' : 'Apply Now'}
+                    </Button>
+                  )}
+                  
+                  {applyError && (
+                    <p className="text-red-500 text-sm text-center mt-2">{applyError}</p>
+                  )}
                 </Card>
               </motion.div>
             ) : (
