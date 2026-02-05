@@ -1,8 +1,9 @@
-import { Navigate } from 'react-router-dom';
+import * as React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { Skeleton } from '../common/Skeleton';
 
-const ProtectedRoute = ({ children, allowedRole }) => {
+const ProtectedRoute = ({ allowedRole }) => {
   const { isAuthenticated, user, isLoading } = useAuth();
 
   if (isLoading) {
@@ -24,7 +25,7 @@ const ProtectedRoute = ({ children, allowedRole }) => {
     return <Navigate to="/" replace />;
   }
 
-  return children;
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

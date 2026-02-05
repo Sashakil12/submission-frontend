@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { createContext, useState, useEffect } from 'react';
 import { getToken, setToken, getUser, setUser, clearAuth } from '../utils/localStorage';
 import * as authService from '../services/auth.service';
