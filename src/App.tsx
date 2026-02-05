@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import CreateJob from './pages/CreateJob';
 import MyApplications from './pages/MyApplications';
 import JobApplications from './pages/JobApplications';
+import Invitations from './pages/Invitations';
 
 function App() {
   return (
@@ -29,8 +30,9 @@ function App() {
             <Route path="/jobs/:id/applications" element={<JobApplications />} />
           </Route>
 
-          <Route element={<ProtectedRoute allowedRole="jobseeker" />}>
+          <Route element={<ProtectedRoute allowedRole="talent" />}>
             <Route path="/my-applications" element={<MyApplications />} />
+            <Route path="/invitations" element={<Invitations />} />
           </Route>
         </Route>
       </Routes>

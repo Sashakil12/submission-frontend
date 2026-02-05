@@ -71,7 +71,5 @@ export const AuthProvider = ({ children }) => {
     checkAuth,
   };
 
-  console.log('AuthContext state:', { isAuthenticated, userRole: user?.role, isLoading });
-
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
